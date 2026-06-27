@@ -1,0 +1,1740 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wi-Fi 文件共享</title>
+    <style>
+      :root,
+      [data-theme="dark"] {
+        --auris-bg: #08090b;
+        --auris-bg-subtle: #0c0d10;
+        --auris-panel: #111116;
+        --auris-panel-raised: #15151b;
+        --auris-border: #6b4a17;
+        --auris-border-muted: #3a3020;
+        --auris-amber: #ffb000;
+        --auris-amber-dim: #a46f08;
+        --auris-amber-soft: rgba(255, 176, 0, 0.14);
+        --auris-text: #f4efe1;
+        --auris-text-muted: #a99a7c;
+        --auris-green: #75d89a;
+        --auris-red: #ff5a56;
+        --auris-bluegray: #8da4aa;
+        --auris-row: rgba(255, 176, 0, 0.08);
+        --auris-shadow: rgba(0, 0, 0, 0.55);
+      }
+
+      [data-theme="light"] {
+        --auris-bg: #f2eee4;
+        --auris-bg-subtle: #e8e1d3;
+        --auris-panel: #fbf7ed;
+        --auris-panel-raised: #fffaf0;
+        --auris-border: #9b6a10;
+        --auris-border-muted: #c7b58f;
+        --auris-amber: #c98200;
+        --auris-amber-dim: #8f620c;
+        --auris-amber-soft: rgba(201, 130, 0, 0.13);
+        --auris-text: #1c1b18;
+        --auris-text-muted: #6f654f;
+        --auris-green: #147a3d;
+        --auris-red: #b4232a;
+        --auris-bluegray: #526b72;
+        --auris-row: rgba(140, 103, 25, 0.12);
+        --auris-shadow: rgba(52, 39, 16, 0.13);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-height: 100%;
+        background: var(--auris-bg);
+        color: var(--auris-text);
+        font-family: "IBM Plex Mono", "Roboto Mono", "JetBrains Mono", Consolas, monospace;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+          linear-gradient(90deg, transparent 31px, var(--auris-row) 32px, transparent 33px),
+          linear-gradient(180deg, transparent 31px, var(--auris-row) 32px, transparent 33px),
+          var(--auris-bg);
+        background-size: 64px 64px;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+      }
+
+      .shell {
+        width: min(1440px, 100%);
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: 40px 56px 48px;
+      }
+
+      .topbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 24px;
+        align-items: start;
+        margin-bottom: 24px;
+      }
+
+      .brand-kicker,
+      .panel-title,
+      .status-label,
+      .meta-label,
+      .command-button,
+      .theme-option,
+      .file-action,
+      .file-head {
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .brand-kicker {
+        color: var(--auris-text-muted);
+        font-size: 12px;
+        line-height: 1.2;
+      }
+
+      h1 {
+        margin: 8px 0 0;
+        color: var(--auris-text);
+        font-size: clamp(32px, 5vw, 52px);
+        font-weight: 500;
+        letter-spacing: 0;
+        line-height: 0.95;
+      }
+
+      .address-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-end;
+        max-width: 640px;
+      }
+
+      .status-label {
+        min-height: 32px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 11px;
+        border: 1px solid var(--auris-border-muted);
+        color: var(--auris-text-muted);
+        background: var(--auris-panel);
+        font-size: 12px;
+      }
+
+      .status-label strong {
+        color: var(--auris-text);
+        font-weight: 500;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      .status-label.is-online {
+        border-color: var(--auris-green);
+        color: var(--auris-green);
+      }
+
+      .status-label.is-sync {
+        border-color: var(--auris-bluegray);
+        color: var(--auris-bluegray);
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(320px, 0.8fr) minmax(520px, 1.2fr);
+        gap: 16px;
+        align-items: start;
+      }
+
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .auris-frame {
+        --cut-size: 18px;
+        --cut-border: 1px;
+        --cut-line: var(--auris-border-muted);
+        --cut-fill: var(--auris-panel);
+        --cut-base: var(--auris-panel);
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        border: 0;
+        background: var(--cut-line);
+        clip-path: polygon(
+          var(--cut-size) 0,
+          100% 0,
+          100% calc(100% - var(--cut-size)),
+          calc(100% - var(--cut-size)) 100%,
+          0 100%,
+          0 var(--cut-size)
+        );
+      }
+
+      .auris-frame::before {
+        content: "";
+        position: absolute;
+        inset: var(--cut-border);
+        z-index: -1;
+        pointer-events: none;
+        background:
+          linear-gradient(var(--cut-fill), var(--cut-fill)),
+          var(--cut-base);
+        clip-path: polygon(
+          calc(var(--cut-size) - var(--cut-border)) 0,
+          100% 0,
+          100% calc(100% - calc(var(--cut-size) - var(--cut-border))),
+          calc(100% - calc(var(--cut-size) - var(--cut-border))) 100%,
+          0 100%,
+          0 calc(var(--cut-size) - var(--cut-border))
+        );
+      }
+
+      .panel {
+        min-width: 0;
+      }
+
+      .panel-header {
+        display: flex;
+        min-height: 48px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 0 18px;
+        border-bottom: 1px solid var(--auris-border-muted);
+        background: var(--auris-panel-raised);
+      }
+
+      .panel-title {
+        color: var(--auris-text);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .panel-code {
+        color: var(--auris-text-muted);
+        font-size: 12px;
+        letter-spacing: 0.14em;
+      }
+
+      .panel-body {
+        padding: 18px;
+      }
+
+      .dropzone {
+        --cut-size: 22px;
+        --cut-line: var(--auris-border);
+        --cut-fill: var(--auris-bg-subtle);
+        display: grid;
+        min-height: 196px;
+        place-items: center;
+        padding: 24px;
+        text-align: center;
+        transition: transform 120ms ease, color 120ms ease;
+      }
+
+      .dropzone.is-dragging {
+        transform: translateY(-2px);
+        color: var(--auris-amber);
+      }
+
+      .dropzone input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+      }
+
+      .drop-title {
+        margin: 0;
+        color: var(--auris-amber);
+        font-size: clamp(26px, 4vw, 42px);
+        font-weight: 500;
+        letter-spacing: 0;
+        line-height: 1;
+      }
+
+      .drop-meta {
+        margin: 12px 0 0;
+        color: var(--auris-text-muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .command-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .command-button,
+      .file-action,
+      .theme-option {
+        --cut-size: 10px;
+        --cut-line: var(--auris-border-muted);
+        --cut-fill: var(--auris-panel);
+        min-height: 44px;
+        border: 0;
+        color: var(--auris-amber);
+        font-size: 12px;
+        font-weight: 700;
+        background: var(--cut-line);
+      }
+
+      .command-button.primary {
+        --cut-line: var(--auris-border);
+        --cut-fill: var(--auris-amber);
+        color: #08090b;
+      }
+
+      .command-button.danger,
+      .file-action.danger {
+        color: var(--auris-red);
+      }
+
+      .command-button:active,
+      .file-action:active,
+      .theme-option:active {
+        transform: translateY(1px);
+      }
+
+      .theme-switch {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+
+      .theme-option {
+        min-height: 36px;
+      }
+
+      .theme-option[aria-pressed="true"] {
+        --cut-line: var(--auris-border);
+        --cut-fill: var(--auris-amber);
+        color: #08090b;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        background: var(--auris-border-muted);
+      }
+
+      .metric {
+        min-width: 0;
+        padding: 14px;
+        background: var(--auris-panel);
+      }
+
+      .meta-label {
+        color: var(--auris-text-muted);
+        font-size: 11px;
+      }
+
+      .metric-value {
+        margin-top: 6px;
+        color: var(--auris-amber);
+        font-size: clamp(24px, 4vw, 36px);
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+      }
+
+      .qr-grid {
+        display: grid;
+        grid-template-columns: 148px minmax(0, 1fr);
+        gap: 14px;
+        align-items: center;
+      }
+
+      .qr-code {
+        width: 148px;
+        height: 148px;
+        display: block;
+        background: #fff;
+        border: 1px solid var(--auris-border);
+        image-rendering: pixelated;
+      }
+
+      .qr-copy {
+        display: grid;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .qr-url {
+        color: var(--auris-amber);
+        font-size: 13px;
+        line-height: 1.55;
+        overflow-wrap: anywhere;
+        text-decoration: none;
+      }
+
+      .qr-hint {
+        color: var(--auris-text-muted);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .progress-block {
+        display: grid;
+        gap: 10px;
+      }
+
+      .board-toolbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 14px;
+      }
+
+      .board-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .board-editor-wrap {
+        display: grid;
+        gap: 12px;
+      }
+
+      .board-editor {
+        min-height: 320px;
+        width: 100%;
+        resize: vertical;
+        border: 1px solid var(--auris-border-muted);
+        background: var(--auris-bg-subtle);
+        color: var(--auris-text);
+        padding: 14px;
+        line-height: 1.65;
+        caret-color: var(--auris-amber);
+        outline: none;
+      }
+
+      .board-editor:focus {
+        border-color: var(--auris-border);
+        box-shadow: inset 0 0 0 1px var(--auris-border);
+      }
+
+      .board-footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--auris-text-muted);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .board-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .board-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(108px, auto));
+        gap: 8px;
+      }
+
+      .progress-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        color: var(--auris-text-muted);
+        font-size: 12px;
+        line-height: 1.5;
+      }
+
+      .progress-meta strong {
+        color: var(--auris-text);
+        font-weight: 500;
+      }
+
+      .progress-track {
+        height: 18px;
+        border: 1px solid var(--auris-border-muted);
+        background:
+          repeating-linear-gradient(
+            90deg,
+            transparent 0,
+            transparent 13px,
+            var(--auris-border-muted) 14px,
+            transparent 15px
+          ),
+          var(--auris-bg-subtle);
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        width: 0%;
+        height: 100%;
+        background: var(--auris-amber);
+        transition: width 120ms linear;
+      }
+
+      .file-list {
+        display: grid;
+      }
+
+      .file-head,
+      .file-row {
+        display: grid;
+        grid-template-columns: minmax(190px, 1fr) 96px 96px 132px 174px;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .file-head {
+        min-height: 36px;
+        padding: 0 14px;
+        border-bottom: 1px solid var(--auris-border-muted);
+        color: var(--auris-text-muted);
+        font-size: 11px;
+      }
+
+      .file-row {
+        min-height: 66px;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--auris-border-muted);
+        color: var(--auris-text);
+        transition: background 120ms ease;
+      }
+
+      .file-row:hover {
+        background: var(--auris-row);
+      }
+
+      .file-row:last-child {
+        border-bottom: 0;
+      }
+
+      .file-name {
+        min-width: 0;
+      }
+
+      .file-name strong {
+        display: block;
+        overflow-wrap: anywhere;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .file-ext {
+        display: inline-block;
+        margin-top: 6px;
+        color: var(--auris-bluegray);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .file-size,
+      .file-downloads,
+      .file-time {
+        color: var(--auris-text-muted);
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .file-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .file-action {
+        min-height: 36px;
+      }
+
+      .empty-state {
+        min-height: 260px;
+        display: grid;
+        place-items: center;
+        padding: 32px;
+        color: var(--auris-text-muted);
+        text-align: center;
+        line-height: 1.6;
+      }
+
+      .log-list {
+        display: grid;
+        max-height: 260px;
+        overflow: auto;
+        padding: 12px;
+        background: var(--auris-bg-subtle);
+        border: 1px solid var(--auris-border-muted);
+        gap: 6px;
+      }
+
+      .log-line {
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        gap: 10px;
+        color: var(--auris-text-muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .log-line[data-level="ok"] {
+        color: var(--auris-green);
+      }
+
+      .log-line[data-level="warn"] {
+        color: var(--auris-amber);
+      }
+
+      .log-line[data-level="error"] {
+        color: var(--auris-red);
+      }
+
+      .log-time {
+        color: var(--auris-bluegray);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .cursor {
+        display: inline-block;
+        width: 9px;
+        height: 1em;
+        margin-left: 3px;
+        background: var(--auris-amber);
+        vertical-align: -2px;
+        animation: blink 1s steps(2, start) infinite;
+      }
+
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+
+      @media (max-width: 980px) {
+        .shell {
+          padding: 24px;
+        }
+
+        .topbar,
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .address-strip {
+          justify-content: flex-start;
+        }
+
+        .file-head {
+          display: none;
+        }
+
+        .file-row {
+          grid-template-columns: 1fr;
+          gap: 8px;
+        }
+
+        .file-actions {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .shell {
+          padding: 18px 14px 28px;
+        }
+
+        .panel-header,
+        .panel-body {
+          padding-left: 14px;
+          padding-right: 14px;
+        }
+
+        .metric-grid,
+        .qr-grid,
+        .command-row {
+          grid-template-columns: 1fr;
+        }
+
+        .qr-code {
+          width: min(180px, 100%);
+          height: auto;
+          aspect-ratio: 1;
+        }
+
+        .topbar {
+          gap: 16px;
+        }
+
+        .address-strip {
+          gap: 6px;
+        }
+
+        .status-label {
+          width: 100%;
+          justify-content: space-between;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <div class="brand-kicker">局域网传输节点</div>
+          <h1>Wi-Fi 文件共享</h1>
+        </div>
+        <div class="address-strip" id="addressStrip">
+          <span class="status-label is-sync">扫描 <strong>...</strong></span>
+        </div>
+      </header>
+
+      <section class="workspace" aria-label="文件共享工作台">
+        <div class="stack">
+          <section class="panel auris-frame">
+            <div class="panel-header">
+              <div class="panel-title">上传控制</div>
+              <div class="panel-code">U-01</div>
+            </div>
+            <div class="panel-body">
+              <label class="dropzone auris-frame" id="dropzone">
+                <input id="fileInput" type="file" multiple />
+                <span>
+                  <span class="drop-title">拖放文件</span>
+                  <span class="drop-meta">拖入文件或点击选择。上传完成后立即进入共享列表。</span>
+                </span>
+              </label>
+
+              <div class="command-row">
+                <button class="command-button primary auris-frame" id="selectButton" type="button">选择文件</button>
+                <button class="command-button auris-frame" id="refreshButton" type="button">刷新列表</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel auris-frame">
+            <div class="panel-header">
+              <div class="panel-title">扫码进入</div>
+              <div class="panel-code">Q-02</div>
+            </div>
+            <div class="panel-body">
+              <div class="qr-grid">
+                <img class="qr-code" id="qrImage" alt="扫码进入此文件共享页面" />
+                <div class="qr-copy">
+                  <a class="qr-url" id="qrLink" href="#" target="_blank" rel="noreferrer">等待生成访问地址</a>
+                  <div class="qr-hint">同一局域网内的手机或电脑扫码即可打开共享页面。</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel auris-frame">
+            <div class="panel-header">
+              <div class="panel-title">节点状态</div>
+              <div class="panel-code">N-03</div>
+            </div>
+            <div class="panel-body">
+              <div class="metric-grid">
+                <div class="metric">
+                  <div class="meta-label">文件数量</div>
+                  <div class="metric-value" id="fileCount">0</div>
+                </div>
+                <div class="metric">
+                  <div class="meta-label">占用空间</div>
+                  <div class="metric-value" id="totalSize">0 B</div>
+                </div>
+                <div class="metric">
+                  <div class="meta-label">在线人数</div>
+                  <div class="metric-value" id="onlineUsers">0</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel auris-frame">
+            <div class="panel-header">
+              <div class="panel-title">主题模式</div>
+              <div class="panel-code">T-04</div>
+            </div>
+            <div class="panel-body">
+              <div class="theme-switch" role="group" aria-label="主题模式">
+                <button class="theme-option auris-frame" id="darkMode" type="button" aria-pressed="true">深色</button>
+                <button class="theme-option auris-frame" id="lightMode" type="button" aria-pressed="false">浅色</button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="stack">
+          <section class="panel auris-frame">
+            <div class="panel-header">
+              <div class="panel-title">传输进度</div>
+              <div class="panel-code" id="operationCode">待命</div>
+            </div>
+            <div class="panel-body">
+              <div class="progress-block">
+                <div class="progress-meta">
+                  <span id="operationName">等待传输任务</span>
+                  <strong id="operationPercent">0%</strong>
+                </div>
+                <div class="progress-track" aria-label="传输进度">
+                  <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-meta">
+                  <span id="operationBytes">0 B / 0 B</span>
+                  <span id="operationRate">0 B/s</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel auris-frame">
+            <div class="panel-header">
+              <div class="panel-title">协作文本文板</div>
+              <div class="panel-code" id="boardPanelCode">B-00</div>
+            </div>
+            <div class="panel-body">
+              <div class="board-toolbar">
+                <div class="board-meta" id="boardMeta">
+                  <span class="status-label is-sync" id="boardSyncStatus">连接 <strong>初始化</strong></span>
+                  <span class="status-label" id="boardVersion">版本 <strong>0</strong></span>
+                </div>
+                <div class="board-actions">
+                  <button class="command-button auris-frame" id="copyBoardButton" type="button">复制文本</button>
+                  <button class="command-button danger auris-frame" id="clearBoardButton" type="button">清空白板</button>
+                </div>
+              </div>
+              <div class="board-editor-wrap">
+                <textarea
+                  class="board-editor"
+                  id="boardEditor"
+                  spellcheck="false"
+                  placeholder="团队可在这里实时同步编辑文本，输入内容会自动广播到所有在线成员。"
+                  aria-label="协作文本文板"
+                ></textarea>
+                <div class="board-footer">
+                  <div class="board-stats">
+                    <span id="boardCharCount">0 字</span>
+                    <span id="boardLineCount">1 行</span>
+                    <span id="boardUpdatedAt">等待同步</span>
+                  </div>
+                  <span>自动同步已开启</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel auris-frame">
+            <div class="panel-header">
+              <div class="panel-title">共享文件</div>
+              <div class="panel-code" id="filePanelCode">F-00</div>
+            </div>
+            <div class="file-list" id="fileList" aria-live="polite">
+              <div class="empty-state">正在读取共享目录<span class="cursor" aria-hidden="true"></span></div>
+            </div>
+          </section>
+
+          <section class="panel auris-frame">
+            <div class="panel-header">
+              <div class="panel-title">系统日志</div>
+              <div class="panel-code">L-04</div>
+            </div>
+            <div class="panel-body">
+              <div class="log-list" id="logList" aria-live="polite"></div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const state = {
+        files: [],
+        busy: false,
+        sessionId: getSessionId(),
+        lastInfo: null,
+        board: {
+          ackText: "",
+          version: 0,
+          updatedAt: "",
+          sending: false,
+          connected: false,
+          renderLock: false,
+          stream: null,
+          flushTimer: 0,
+          lastErrorAt: 0,
+        },
+      };
+
+      const elements = {
+        addressStrip: document.querySelector("#addressStrip"),
+        fileInput: document.querySelector("#fileInput"),
+        dropzone: document.querySelector("#dropzone"),
+        selectButton: document.querySelector("#selectButton"),
+        refreshButton: document.querySelector("#refreshButton"),
+        fileCount: document.querySelector("#fileCount"),
+        totalSize: document.querySelector("#totalSize"),
+        onlineUsers: document.querySelector("#onlineUsers"),
+        qrImage: document.querySelector("#qrImage"),
+        qrLink: document.querySelector("#qrLink"),
+        fileList: document.querySelector("#fileList"),
+        filePanelCode: document.querySelector("#filePanelCode"),
+        operationCode: document.querySelector("#operationCode"),
+        operationName: document.querySelector("#operationName"),
+        operationPercent: document.querySelector("#operationPercent"),
+        operationBytes: document.querySelector("#operationBytes"),
+        operationRate: document.querySelector("#operationRate"),
+        progressFill: document.querySelector("#progressFill"),
+        logList: document.querySelector("#logList"),
+        darkMode: document.querySelector("#darkMode"),
+        lightMode: document.querySelector("#lightMode"),
+        boardEditor: document.querySelector("#boardEditor"),
+        boardSyncStatus: document.querySelector("#boardSyncStatus"),
+        boardVersion: document.querySelector("#boardVersion"),
+        boardUpdatedAt: document.querySelector("#boardUpdatedAt"),
+        boardCharCount: document.querySelector("#boardCharCount"),
+        boardLineCount: document.querySelector("#boardLineCount"),
+        boardPanelCode: document.querySelector("#boardPanelCode"),
+        copyBoardButton: document.querySelector("#copyBoardButton"),
+        clearBoardButton: document.querySelector("#clearBoardButton"),
+      };
+
+      init();
+
+      function init() {
+        bindEvents();
+        addLog("sys", "节点启动，等待局域网访问");
+        loadInfo();
+        loadFiles();
+        loadBoard();
+        startHeartbeat();
+        startBoardStream();
+      }
+
+      function bindEvents() {
+        elements.selectButton.addEventListener("click", () => elements.fileInput.click());
+        elements.refreshButton.addEventListener("click", loadFiles);
+        elements.fileInput.addEventListener("change", () => {
+          uploadFiles(Array.from(elements.fileInput.files || []));
+          elements.fileInput.value = "";
+        });
+
+        ["dragenter", "dragover"].forEach((type) => {
+          elements.dropzone.addEventListener(type, (event) => {
+            event.preventDefault();
+            elements.dropzone.classList.add("is-dragging");
+          });
+        });
+
+        ["dragleave", "drop"].forEach((type) => {
+          elements.dropzone.addEventListener(type, (event) => {
+            event.preventDefault();
+            elements.dropzone.classList.remove("is-dragging");
+          });
+        });
+
+        elements.dropzone.addEventListener("drop", (event) => {
+          const files = Array.from(event.dataTransfer.files || []);
+          uploadFiles(files);
+        });
+
+        elements.darkMode.addEventListener("click", () => setTheme("dark"));
+        elements.lightMode.addEventListener("click", () => setTheme("light"));
+        elements.boardEditor.addEventListener("input", handleBoardInput);
+        elements.copyBoardButton.addEventListener("click", copyBoardText);
+        elements.clearBoardButton.addEventListener("click", clearBoardText);
+        window.addEventListener("beforeunload", () => {
+          if (state.board.stream) {
+            state.board.stream.close();
+          }
+        });
+      }
+
+      function setTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        elements.darkMode.setAttribute("aria-pressed", String(theme === "dark"));
+        elements.lightMode.setAttribute("aria-pressed", String(theme === "light"));
+      }
+
+      async function loadInfo() {
+        try {
+          const info = await fetchJSON("/api/info");
+          renderAddresses(info);
+        } catch (error) {
+          elements.addressStrip.innerHTML = "";
+          elements.addressStrip.append(statusLabel("故障", error.message || "读取失败", "error"));
+          addLog("error", "无法读取局域网地址");
+        }
+      }
+
+      async function loadFiles() {
+        try {
+          state.files = await fetchJSON("/api/files");
+          renderFiles();
+          addLog("ok", `共享列表同步完成：${state.files.length} 个文件`);
+        } catch (error) {
+          renderError(error.message || "文件列表读取失败");
+          addLog("error", error.message || "文件列表读取失败");
+        }
+      }
+
+      async function loadBoard(preserveLocal = false) {
+        try {
+          const snapshot = await fetchJSON("/api/board");
+          const currentLocalText = elements.boardEditor.value;
+          state.board.ackText = snapshot.text || "";
+          state.board.version = Number(snapshot.version) || 0;
+          state.board.updatedAt = snapshot.updatedAt || "";
+          renderBoardEditor(preserveLocal ? currentLocalText : state.board.ackText);
+          if (preserveLocal && currentLocalText !== state.board.ackText) {
+            queueBoardFlush(80);
+          }
+        } catch (error) {
+          setBoardSyncStatus("连接", "读取失败", "warn");
+          addLog("error", error.message || "白板初始化失败");
+        }
+      }
+
+      function startBoardStream() {
+        if (state.board.stream) {
+          state.board.stream.close();
+        }
+        setBoardSyncStatus("连接", "建立中", "sync");
+        const stream = new EventSource("/api/board/stream");
+        state.board.stream = stream;
+
+        stream.onopen = () => {
+          state.board.connected = true;
+          updateBoardStatus();
+          addLog("ok", "协作文本文板实时通道已连接");
+        };
+
+        stream.onmessage = (event) => {
+          try {
+            const payload = JSON.parse(event.data);
+            handleBoardStreamEvent(payload);
+          } catch (error) {
+            addLog("warn", "白板推送数据解析失败");
+          }
+        };
+
+        stream.onerror = () => {
+          state.board.connected = false;
+          updateBoardStatus();
+          const now = Date.now();
+          if (now - state.board.lastErrorAt > 8000) {
+            state.board.lastErrorAt = now;
+            addLog("warn", "白板实时通道重连中");
+          }
+        };
+      }
+
+      function handleBoardStreamEvent(payload) {
+        if (!payload || !payload.type) {
+          return;
+        }
+
+        if (payload.type === "snapshot" && payload.state) {
+          const incomingVersion = Number(payload.state.version) || 0;
+          if (incomingVersion < state.board.version) {
+            return;
+          }
+          const localText = elements.boardEditor.value;
+          const hadLocalChanges = localText !== state.board.ackText;
+          state.board.ackText = payload.state.text || "";
+          state.board.version = incomingVersion;
+          state.board.updatedAt = payload.state.updatedAt || "";
+          renderBoardEditor(hadLocalChanges ? localText : state.board.ackText);
+          if (hadLocalChanges) {
+            queueBoardFlush(50);
+          }
+          return;
+        }
+
+        if (payload.type !== "operation" || !payload.operation) {
+          return;
+        }
+
+        const operation = normalizeOperation(payload.operation);
+        if (operation.version <= state.board.version) {
+          return;
+        }
+
+        const previousAckText = state.board.ackText;
+        const localText = elements.boardEditor.value;
+        const localSelection = {
+          start: elements.boardEditor.selectionStart || 0,
+          end: elements.boardEditor.selectionEnd || 0,
+        };
+
+        state.board.ackText = applyOperation(previousAckText, operation);
+        state.board.version = operation.version;
+        state.board.updatedAt = operation.updatedAt || "";
+
+        let nextText = state.board.ackText;
+        let selectionOperation = operation;
+        const localDiff = computeTextOperation(previousAckText, localText);
+        if (localDiff) {
+          const transformedRemote = transformOperation(operation, localDiff, false);
+          nextText = applyOperation(localText, transformedRemote);
+          selectionOperation = transformedRemote;
+          queueBoardFlush(60);
+        }
+
+        renderBoardEditor(nextText, localSelection, selectionOperation);
+        if (operation.sessionId !== state.sessionId) {
+          addLog("ok", "协作文本文板收到新的团队编辑");
+        }
+      }
+
+      function handleBoardInput() {
+        if (state.board.renderLock) {
+          return;
+        }
+        updateBoardMetrics(elements.boardEditor.value);
+        updateBoardStatus();
+        queueBoardFlush(140);
+      }
+
+      function queueBoardFlush(delay = 140) {
+        window.clearTimeout(state.board.flushTimer);
+        state.board.flushTimer = window.setTimeout(() => {
+          flushBoardChanges();
+        }, delay);
+      }
+
+      async function flushBoardChanges() {
+        window.clearTimeout(state.board.flushTimer);
+        state.board.flushTimer = 0;
+        if (state.board.sending) {
+          return;
+        }
+
+        const localText = elements.boardEditor.value;
+        const operation = computeTextOperation(state.board.ackText, localText);
+        if (!operation) {
+          updateBoardStatus();
+          return;
+        }
+
+        state.board.sending = true;
+        updateBoardStatus();
+
+        try {
+          const response = await fetchJSON("/api/board/ops", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              sessionId: state.sessionId,
+              operationId: createOperationId(),
+              baseVersion: state.board.version,
+              start: operation.start,
+              end: operation.end,
+              text: operation.text,
+            }),
+          });
+
+          state.board.ackText = response.text || "";
+          state.board.version = Number(response.version) || state.board.version;
+          state.board.updatedAt = response.updatedAt || "";
+          updateBoardMetrics(elements.boardEditor.value);
+          updateBoardStatus();
+          if (elements.boardEditor.value !== state.board.ackText) {
+            queueBoardFlush(40);
+          }
+        } catch (error) {
+          if ((error.message || "").includes("版本过旧")) {
+            addLog("warn", "白板版本已变化，正在重新同步");
+            await loadBoard(true);
+          } else {
+            addLog("error", `白板同步失败：${error.message || "未知错误"}`);
+          }
+        } finally {
+          state.board.sending = false;
+          updateBoardStatus();
+        }
+      }
+
+      async function copyBoardText() {
+        const text = elements.boardEditor.value;
+        if (!text) {
+          addLog("warn", "白板为空，无可复制内容");
+          return;
+        }
+        try {
+          await navigator.clipboard.writeText(text);
+          addLog("ok", "白板文本已复制到剪贴板");
+        } catch (error) {
+          elements.boardEditor.focus();
+          elements.boardEditor.select();
+          addLog("warn", "当前环境不支持直接写入剪贴板，已选中文本");
+        }
+      }
+
+      function clearBoardText() {
+        if (!elements.boardEditor.value) {
+          return;
+        }
+        const confirmed = window.confirm("清空协作文本文板？");
+        if (!confirmed) {
+          return;
+        }
+        elements.boardEditor.value = "";
+        updateBoardMetrics("");
+        updateBoardStatus();
+        queueBoardFlush(30);
+        addLog("warn", "协作文本文板已请求清空");
+      }
+
+      function renderBoardEditor(text, selection, operation) {
+        const shouldPreserveSelection =
+          document.activeElement === elements.boardEditor &&
+          selection &&
+          typeof selection.start === "number" &&
+          typeof selection.end === "number";
+
+        state.board.renderLock = true;
+        elements.boardEditor.value = text;
+        state.board.renderLock = false;
+
+        if (shouldPreserveSelection) {
+          const nextStart = Math.min(transformIndex(selection.start, operation, true), text.length);
+          const nextEnd = Math.min(transformIndex(selection.end, operation, true), text.length);
+          elements.boardEditor.focus({ preventScroll: true });
+          elements.boardEditor.setSelectionRange(nextStart, nextEnd);
+        }
+
+        updateBoardMetrics(text);
+        updateBoardStatus();
+      }
+
+      function updateBoardMetrics(text) {
+        elements.boardCharCount.textContent = `${text.length} 字`;
+        elements.boardLineCount.textContent = `${Math.max(1, text.split("\n").length)} 行`;
+        elements.boardPanelCode.textContent = `B-${String(state.board.version).padStart(2, "0")}`;
+      }
+
+      function updateBoardStatus() {
+        const localText = elements.boardEditor.value;
+        const dirty = localText !== state.board.ackText;
+
+        if (!state.board.connected) {
+          setBoardSyncStatus("连接", "重连中", "sync");
+        } else if (state.board.sending) {
+          setBoardSyncStatus("同步", "发送中", "sync");
+        } else if (dirty) {
+          setBoardSyncStatus("同步", "等待提交", "sync");
+        } else {
+          setBoardSyncStatus("同步", "已同步", "online");
+        }
+
+        elements.boardVersion.innerHTML = `版本 <strong>${escapeHTML(String(state.board.version))}</strong>`;
+        elements.boardUpdatedAt.textContent = state.board.updatedAt
+          ? `最近同步 ${formatDateTime(state.board.updatedAt)}`
+          : "等待同步";
+      }
+
+      function setBoardSyncStatus(label, value, level) {
+        elements.boardSyncStatus.className = "status-label";
+        if (level === "online") {
+          elements.boardSyncStatus.classList.add("is-online");
+        }
+        if (level === "sync") {
+          elements.boardSyncStatus.classList.add("is-sync");
+        }
+        elements.boardSyncStatus.innerHTML = `${escapeHTML(label)} <strong>${escapeHTML(value)}</strong>`;
+      }
+
+      async function fetchJSON(url, options) {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error.error || `HTTP ${response.status}`);
+        }
+        return response.json();
+      }
+
+      function renderAddresses(info) {
+        state.lastInfo = info;
+        const port = info.port || location.port || "8080";
+        const ips = Array.isArray(info.ips) ? info.ips : [];
+        const shareURL = buildShareURL(ips[0], port);
+        renderOnlineUsers(info.users || 0);
+        renderQRCode(shareURL);
+        elements.addressStrip.innerHTML = "";
+        elements.addressStrip.append(statusLabel("本机", `${location.hostname || "localhost"}:${port}`, "online"));
+        elements.addressStrip.append(statusLabel("在线", `${info.users || 0} 人`, "online"));
+        if (ips.length === 0) {
+          elements.addressStrip.append(statusLabel("局域网", "未检测到局域网 IPv4", "sync"));
+          return;
+        }
+        ips.forEach((ip) => {
+          elements.addressStrip.append(statusLabel("局域网地址", `${ip}:${port}`, "sync"));
+        });
+      }
+
+      function statusLabel(label, value, level) {
+        const node = document.createElement("span");
+        node.className = `status-label ${level === "online" ? "is-online" : ""} ${level === "sync" ? "is-sync" : ""}`;
+        node.innerHTML = `${escapeHTML(label)} <strong>${escapeHTML(value)}</strong>`;
+        return node;
+      }
+
+      function buildShareURL(ip, port) {
+        const host = ip || location.hostname || "localhost";
+        const safePort = port || location.port || "8080";
+        return `${location.protocol}//${host}:${safePort}/`;
+      }
+
+      function renderQRCode(shareURL) {
+        elements.qrLink.href = shareURL;
+        elements.qrLink.textContent = shareURL;
+        elements.qrImage.src = `/api/qr?url=${encodeURIComponent(shareURL)}`;
+      }
+
+      function renderOnlineUsers(users) {
+        elements.onlineUsers.textContent = String(users);
+      }
+
+      function getSessionId() {
+        const key = "lzc_wifi_session_id";
+        const existing = sessionStorage.getItem(key);
+        if (existing) {
+          return existing;
+        }
+        const generated =
+          crypto.randomUUID?.() ||
+          `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+        sessionStorage.setItem(key, generated);
+        return generated;
+      }
+
+      function startHeartbeat() {
+        sendHeartbeat();
+        window.setInterval(sendHeartbeat, 15000);
+      }
+
+      async function sendHeartbeat() {
+        try {
+          const response = await fetchJSON("/api/heartbeat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              sessionId: state.sessionId,
+            }),
+          });
+          const users = response.users || 0;
+          renderOnlineUsers(users);
+          if (state.lastInfo) {
+            renderAddresses({ ...state.lastInfo, users });
+          }
+        } catch (error) {
+          addLog("warn", "在线人数同步失败");
+        }
+      }
+
+      async function uploadFiles(files) {
+        if (files.length === 0 || state.busy) {
+          return;
+        }
+        state.busy = true;
+        setCommandState(true);
+        try {
+          for (const file of files) {
+            await uploadFile(file);
+          }
+          await loadFiles();
+        } finally {
+          state.busy = false;
+          setCommandState(false);
+        }
+      }
+
+      function uploadFile(file) {
+        return new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          const form = new FormData();
+          const startedAt = performance.now();
+          form.append("file", file);
+
+          resetProgress("上传", file.name, file.size);
+          xhr.open("POST", "/api/upload");
+
+          xhr.upload.onprogress = (event) => {
+            updateProgress("上传", file.name, event.loaded, event.total || file.size, startedAt);
+          };
+
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              updateProgress("上传", file.name, file.size, file.size, startedAt);
+              addLog("ok", `上传完成：${file.name}`);
+              resolve();
+              return;
+            }
+            const message = parseXHRError(xhr);
+            addLog("error", `上传失败：${file.name} / ${message}`);
+            reject(new Error(message));
+          };
+
+          xhr.onerror = () => {
+            addLog("error", `上传中断：${file.name}`);
+            reject(new Error("网络错误"));
+          };
+
+          xhr.send(form);
+        });
+      }
+
+      function downloadFile(file) {
+        if (state.busy) {
+          return;
+        }
+
+        state.busy = true;
+        setCommandState(true);
+        const xhr = new XMLHttpRequest();
+        const startedAt = performance.now();
+        resetProgress("下载", file.name, file.size);
+
+        xhr.open("GET", file.download);
+        xhr.responseType = "blob";
+
+        xhr.onprogress = (event) => {
+          updateProgress("下载", file.name, event.loaded, event.lengthComputable ? event.total : file.size, startedAt);
+        };
+
+        xhr.onload = () => {
+          state.busy = false;
+          setCommandState(false);
+          if (xhr.status >= 200 && xhr.status < 300) {
+            updateProgress("下载", file.name, file.size, file.size, startedAt);
+            saveBlob(xhr.response, file.name);
+            addLog("ok", `下载完成：${file.name}`);
+            loadFiles();
+            return;
+          }
+          const message = parseXHRError(xhr);
+          addLog("error", `下载失败：${file.name} / ${message}`);
+        };
+
+        xhr.onerror = () => {
+          state.busy = false;
+          setCommandState(false);
+          addLog("error", `下载中断：${file.name}`);
+        };
+
+        xhr.send();
+      }
+
+      async function deleteFile(file) {
+        if (state.busy) {
+          return;
+        }
+        const confirmed = window.confirm(`删除 ${file.name}？`);
+        if (!confirmed) {
+          return;
+        }
+
+        state.busy = true;
+        setCommandState(true);
+        resetProgress("删除", file.name, file.size);
+        try {
+          const response = await fetch(`/api/files/${encodeURIComponent(file.name)}`, { method: "DELETE" });
+          if (!response.ok) {
+            const error = await response.json().catch(() => ({}));
+            throw new Error(error.error || `HTTP ${response.status}`);
+          }
+          updateProgress("删除", file.name, file.size, file.size, performance.now() - 1);
+          addLog("warn", `已删除：${file.name}`);
+          await loadFiles();
+        } catch (error) {
+          addLog("error", `删除失败：${file.name} / ${error.message}`);
+        } finally {
+          state.busy = false;
+          setCommandState(false);
+        }
+      }
+
+      function renderFiles() {
+        const total = state.files.reduce((sum, file) => sum + file.size, 0);
+        elements.fileCount.textContent = String(state.files.length);
+        elements.totalSize.textContent = formatBytes(total);
+        elements.filePanelCode.textContent = `F-${String(state.files.length).padStart(2, "0")}`;
+
+        if (state.files.length === 0) {
+          elements.fileList.innerHTML = '<div class="empty-state">共享目录为空<span class="cursor" aria-hidden="true"></span></div>';
+          return;
+        }
+
+        elements.fileList.innerHTML = `
+          <div class="file-head" aria-hidden="true">
+            <span>文件名</span>
+            <span>大小</span>
+            <span>下载次数</span>
+            <span>修改时间</span>
+            <span>操作</span>
+          </div>
+        `;
+
+        for (const file of state.files) {
+          const row = document.createElement("div");
+          row.className = "file-row";
+          row.innerHTML = `
+            <div class="file-name">
+              <strong>${escapeHTML(file.name)}</strong>
+              <span class="file-ext">${escapeHTML(file.extension || "文件")}</span>
+            </div>
+            <div class="file-size">${formatBytes(file.size)}</div>
+            <div class="file-downloads">${formatCount(file.downloads)}</div>
+            <div class="file-time">${formatDate(file.modTime)}</div>
+            <div class="file-actions">
+              <button class="file-action auris-frame" type="button">下载</button>
+              <button class="file-action danger auris-frame" type="button">删除</button>
+            </div>
+          `;
+          const [downloadButton, deleteButton] = row.querySelectorAll("button");
+          downloadButton.addEventListener("click", () => downloadFile(file));
+          deleteButton.addEventListener("click", () => deleteFile(file));
+          elements.fileList.append(row);
+        }
+      }
+
+      function renderError(message) {
+        elements.fileList.innerHTML = `<div class="empty-state">${escapeHTML(message)}</div>`;
+      }
+
+      function resetProgress(code, name, total) {
+        elements.operationCode.textContent = code;
+        elements.operationName.textContent = name;
+        elements.operationPercent.textContent = "0%";
+        elements.operationBytes.textContent = `0 B / ${formatBytes(total || 0)}`;
+        elements.operationRate.textContent = "0 B/s";
+        elements.progressFill.style.width = "0%";
+      }
+
+      function updateProgress(code, name, loaded, total, startedAt) {
+        const safeTotal = Math.max(total || loaded || 0, 0);
+        const percent = safeTotal > 0 ? Math.min(100, Math.round((loaded / safeTotal) * 100)) : 0;
+        const elapsed = Math.max((performance.now() - startedAt) / 1000, 0.001);
+        elements.operationCode.textContent = code;
+        elements.operationName.textContent = name;
+        elements.operationPercent.textContent = `${percent}%`;
+        elements.operationBytes.textContent = `${formatBytes(loaded)} / ${formatBytes(safeTotal)}`;
+        elements.operationRate.textContent = `${formatBytes(loaded / elapsed)}/s`;
+        elements.progressFill.style.width = `${percent}%`;
+      }
+
+      function setCommandState(isBusy) {
+        elements.selectButton.disabled = isBusy;
+        elements.refreshButton.disabled = isBusy;
+        elements.fileList.querySelectorAll("button").forEach((button) => {
+          button.disabled = isBusy;
+        });
+      }
+
+      function saveBlob(blob, name) {
+        const objectURL = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = objectURL;
+        link.download = name;
+        document.body.append(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(objectURL), 1000);
+      }
+
+      function parseXHRError(xhr) {
+        try {
+          const parsed = JSON.parse(xhr.responseText);
+          return parsed.error || `HTTP ${xhr.status}`;
+        } catch (error) {
+          return `HTTP ${xhr.status}`;
+        }
+      }
+
+      function normalizeOperation(operation) {
+        return {
+          sessionId: operation.sessionId || "",
+          operationId: operation.operationId || "",
+          start: Number(operation.start) || 0,
+          end: Number(operation.end) || 0,
+          text: operation.text || "",
+          version: Number(operation.version) || 0,
+          updatedAt: operation.updatedAt || "",
+        };
+      }
+
+      function computeTextOperation(source, target) {
+        if (source === target) {
+          return null;
+        }
+
+        let start = 0;
+        while (start < source.length && start < target.length && source[start] === target[start]) {
+          start += 1;
+        }
+
+        let sourceEnd = source.length;
+        let targetEnd = target.length;
+        while (sourceEnd > start && targetEnd > start && source[sourceEnd - 1] === target[targetEnd - 1]) {
+          sourceEnd -= 1;
+          targetEnd -= 1;
+        }
+
+        return {
+          start,
+          end: sourceEnd,
+          text: target.slice(start, targetEnd),
+        };
+      }
+
+      function applyOperation(text, operation) {
+        return text.slice(0, operation.start) + (operation.text || "") + text.slice(operation.end);
+      }
+
+      function transformOperation(operation, applied, preferAfter) {
+        return {
+          ...operation,
+          start: transformIndex(operation.start, applied, preferAfter),
+          end: Math.max(
+            transformIndex(operation.start, applied, preferAfter),
+            transformIndex(operation.end, applied, preferAfter)
+          ),
+        };
+      }
+
+      function transformIndex(index, operation, preferAfter) {
+        if (!operation) {
+          return index;
+        }
+        const insertedLength = (operation.text || "").length;
+        const replacedLength = Math.max(0, operation.end - operation.start);
+        const delta = insertedLength - replacedLength;
+
+        if (index < operation.start) {
+          return index;
+        }
+        if (index > operation.end) {
+          return index + delta;
+        }
+        if (index === operation.start) {
+          return preferAfter ? operation.start + insertedLength : operation.start;
+        }
+        if (index === operation.end) {
+          return operation.start + insertedLength;
+        }
+        return preferAfter ? operation.start + insertedLength : operation.start;
+      }
+
+      function createOperationId() {
+        return (
+          crypto.randomUUID?.() ||
+          `op-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`
+        );
+      }
+
+      function addLog(level, message) {
+        const line = document.createElement("div");
+        line.className = "log-line";
+        line.dataset.level = level;
+        line.innerHTML = `<span class="log-time">${currentTime()}</span><span>$ ${escapeHTML(message)}</span>`;
+        elements.logList.prepend(line);
+        while (elements.logList.children.length > 80) {
+          elements.logList.lastElementChild.remove();
+        }
+      }
+
+      function currentTime() {
+        return new Intl.DateTimeFormat("zh-CN", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        }).format(new Date());
+      }
+
+      function formatDate(value) {
+        return new Intl.DateTimeFormat("zh-CN", {
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }).format(new Date(value));
+      }
+
+      function formatDateTime(value) {
+        return new Intl.DateTimeFormat("zh-CN", {
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        }).format(new Date(value));
+      }
+
+      function formatBytes(bytes) {
+        const units = ["B", "KB", "MB", "GB", "TB"];
+        let value = Number(bytes) || 0;
+        let index = 0;
+        while (value >= 1024 && index < units.length - 1) {
+          value /= 1024;
+          index += 1;
+        }
+        return `${value >= 10 || index === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[index]}`;
+      }
+
+      function formatCount(value) {
+        return `${Number(value) || 0} 次`;
+      }
+
+      function escapeHTML(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+    </script>
+  </body>
+</html>

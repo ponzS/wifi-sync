@@ -1,0 +1,4 @@
+.DS_Store
+.board-state.json
+.download-counts.json
+uploads/
