@@ -897,6 +897,7 @@
           stream: null,
           flushTimer: 0,
           lastErrorAt: 0,
+          pendingOperationIds: new Set(),
         },
       };
 
@@ -1101,9 +1102,23 @@
           end: elements.boardEditor.selectionEnd || 0,
         };
 
+        const isPendingLocalEcho =
+          operation.sessionId === state.sessionId &&
+          state.board.pendingOperationIds.has(operation.operationId);
+
         state.board.ackText = applyOperation(previousAckText, operation);
         state.board.version = operation.version;
         state.board.updatedAt = operation.updatedAt || "";
+
+        if (isPendingLocalEcho) {
+          state.board.pendingOperationIds.delete(operation.operationId);
+          const hasAdditionalLocalChanges = localText !== state.board.ackText;
+          renderBoardEditor(hasAdditionalLocalChanges ? localText : state.board.ackText, localSelection);
+          if (hasAdditionalLocalChanges) {
+            queueBoardFlush(60);
+          }
+          return;
+        }
 
         let nextText = state.board.ackText;
         let selectionOperation = operation;
@@ -1151,7 +1166,9 @@
           return;
         }
 
+        const operationId = createOperationId();
         state.board.sending = true;
+        state.board.pendingOperationIds.add(operationId);
         updateBoardStatus();
 
         try {
@@ -1162,7 +1179,7 @@
             },
             body: JSON.stringify({
               sessionId: state.sessionId,
-              operationId: createOperationId(),
+              operationId,
               baseVersion: state.board.version,
               start: operation.start,
               end: operation.end,
@@ -1173,12 +1190,14 @@
           state.board.ackText = response.text || "";
           state.board.version = Number(response.version) || state.board.version;
           state.board.updatedAt = response.updatedAt || "";
+          state.board.pendingOperationIds.delete(operationId);
           updateBoardMetrics(elements.boardEditor.value);
           updateBoardStatus();
           if (elements.boardEditor.value !== state.board.ackText) {
             queueBoardFlush(40);
           }
         } catch (error) {
+          state.board.pendingOperationIds.delete(operationId);
           if ((error.message || "").includes("版本过旧")) {
             addLog("warn", "白板版本已变化，正在重新同步");
             await loadBoard(true);
