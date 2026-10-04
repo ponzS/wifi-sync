@@ -7,91 +7,143 @@
     <style>
       :root,
       [data-theme="dark"] {
-        --auris-bg: #08090b;
-        --auris-bg-subtle: #0c0d10;
-        --auris-panel: #111116;
-        --auris-panel-raised: #15151b;
-        --auris-border: #6b4a17;
-        --auris-border-muted: #3a3020;
-        --auris-amber: #ffb000;
-        --auris-amber-dim: #a46f08;
-        --auris-amber-soft: rgba(255, 176, 0, 0.14);
-        --auris-text: #f4efe1;
-        --auris-text-muted: #a99a7c;
-        --auris-green: #75d89a;
-        --auris-red: #ff5a56;
-        --auris-bluegray: #8da4aa;
-        --auris-row: rgba(255, 176, 0, 0.08);
-        --auris-shadow: rgba(0, 0, 0, 0.55);
+        color-scheme: dark;
+        --app-bg: #111113;
+        --app-bg-end: #171719;
+        --surface: rgba(35, 35, 39, 0.72);
+        --surface-solid: #232327;
+        --surface-raised: rgba(47, 47, 52, 0.76);
+        --field: rgba(20, 20, 23, 0.9);
+        --chrome: rgba(30, 30, 34, 0.72);
+        --border: rgba(255, 255, 255, 0.13);
+        --border-strong: rgba(255, 255, 255, 0.24);
+        --text: #f5f5f7;
+        --text-muted: #a1a1aa;
+        --accent: #0a84ff;
+        --accent-contrast: #ffffff;
+        --accent-soft: rgba(10, 132, 255, 0.18);
+        --green: #30d158;
+        --red: #ff453a;
+        --orange: #ff9f0a;
+        --cyan: #64d2ff;
+        --row: rgba(255, 255, 255, 0.055);
+        --button-surface: rgba(255, 255, 255, 0.075);
+        --button-hover: rgba(255, 255, 255, 0.12);
+        --shadow: rgba(0, 0, 0, 0.34);
+        --focus: rgba(10, 132, 255, 0.72);
+        --radius: 8px;
+        --radius-sm: 6px;
+        --blur: 22px;
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        --ease-press: cubic-bezier(0.2, 0, 0, 1);
       }
 
       [data-theme="light"] {
-        --auris-bg: #f2eee4;
-        --auris-bg-subtle: #e8e1d3;
-        --auris-panel: #fbf7ed;
-        --auris-panel-raised: #fffaf0;
-        --auris-border: #9b6a10;
-        --auris-border-muted: #c7b58f;
-        --auris-amber: #c98200;
-        --auris-amber-dim: #8f620c;
-        --auris-amber-soft: rgba(201, 130, 0, 0.13);
-        --auris-text: #1c1b18;
-        --auris-text-muted: #6f654f;
-        --auris-green: #147a3d;
-        --auris-red: #b4232a;
-        --auris-bluegray: #526b72;
-        --auris-row: rgba(140, 103, 25, 0.12);
-        --auris-shadow: rgba(52, 39, 16, 0.13);
+        color-scheme: light;
+        --app-bg: #f5f5f7;
+        --app-bg-end: #ebeaf0;
+        --surface: rgba(255, 255, 255, 0.74);
+        --surface-solid: #ffffff;
+        --surface-raised: rgba(255, 255, 255, 0.86);
+        --field: rgba(248, 248, 251, 0.96);
+        --chrome: rgba(255, 255, 255, 0.74);
+        --border: rgba(25, 25, 31, 0.12);
+        --border-strong: rgba(25, 25, 31, 0.2);
+        --text: #1d1d1f;
+        --text-muted: #6e6e73;
+        --accent: #0066cc;
+        --accent-contrast: #ffffff;
+        --accent-soft: rgba(0, 102, 204, 0.12);
+        --green: #248a3d;
+        --red: #d70015;
+        --orange: #bf5b00;
+        --cyan: #0071a4;
+        --row: rgba(0, 0, 0, 0.035);
+        --button-surface: rgba(0, 0, 0, 0.045);
+        --button-hover: rgba(0, 0, 0, 0.07);
+        --shadow: rgba(0, 0, 0, 0.12);
+        --focus: rgba(0, 102, 204, 0.56);
       }
 
-      * {
+      *,
+      *::before,
+      *::after {
         box-sizing: border-box;
       }
 
       html {
         min-height: 100%;
-        background: var(--auris-bg);
-        color: var(--auris-text);
-        font-family: "IBM Plex Mono", "Roboto Mono", "JetBrains Mono", Consolas, monospace;
+        background: var(--app-bg);
+        color: var(--text);
+        font: 100%/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+        font-optical-sizing: auto;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -webkit-text-size-adjust: 100%;
       }
 
       body {
         min-height: 100vh;
         margin: 0;
+        overflow-x: hidden;
         background:
-          linear-gradient(90deg, transparent 31px, var(--auris-row) 32px, transparent 33px),
-          linear-gradient(180deg, transparent 31px, var(--auris-row) 32px, transparent 33px),
-          var(--auris-bg);
-        background-size: 64px 64px;
+          linear-gradient(180deg, var(--app-bg-end) 0, var(--app-bg) 42rem),
+          var(--app-bg);
+      }
+
+      a {
+        color: var(--accent);
       }
 
       button,
-      input {
+      input,
+      textarea {
         font: inherit;
       }
 
       button {
         cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
       }
 
       button:disabled {
         cursor: not-allowed;
-        opacity: 0.55;
+        opacity: 0.52;
+      }
+
+      :where(button, a, textarea, label):focus-visible {
+        outline: 3px solid var(--focus);
+        outline-offset: 3px;
+      }
+
+      ::selection {
+        background: var(--accent-soft);
       }
 
       .shell {
-        width: min(1440px, 100%);
+        width: min(1480px, 100%);
         min-height: 100vh;
         margin: 0 auto;
-        padding: 40px 56px 48px;
+        padding: 32px 40px 44px;
       }
 
       .topbar {
+        position: sticky;
+        top: 12px;
+        z-index: 10;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 24px;
-        align-items: start;
-        margin-bottom: 24px;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, auto);
+        gap: 18px;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 14px 16px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--chrome);
+        box-shadow: 0 14px 34px var(--shadow);
+        -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
+        backdrop-filter: blur(var(--blur)) saturate(180%);
       }
 
       .brand-kicker,
@@ -102,23 +154,24 @@
       .theme-option,
       .file-action,
       .file-head {
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
+        letter-spacing: 0;
+        text-transform: none;
       }
 
       .brand-kicker {
-        color: var(--auris-text-muted);
-        font-size: 12px;
-        line-height: 1.2;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        font-weight: 600;
+        line-height: 1.25;
       }
 
       h1 {
-        margin: 8px 0 0;
-        color: var(--auris-text);
-        font-size: clamp(32px, 5vw, 52px);
-        font-weight: 500;
+        margin: 2px 0 0;
+        color: var(--text);
+        font-size: 2.75rem;
+        font-weight: 700;
         letter-spacing: 0;
-        line-height: 0.95;
+        line-height: 1.02;
       }
 
       .address-strip {
@@ -126,7 +179,7 @@
         flex-wrap: wrap;
         gap: 8px;
         justify-content: flex-end;
-        max-width: 640px;
+        max-width: 760px;
       }
 
       .status-label {
@@ -135,106 +188,94 @@
         align-items: center;
         gap: 8px;
         padding: 0 11px;
-        border: 1px solid var(--auris-border-muted);
-        color: var(--auris-text-muted);
-        background: var(--auris-panel);
-        font-size: 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--text-muted);
+        background: var(--button-surface);
+        font-size: 0.8125rem;
+        line-height: 1;
+        white-space: nowrap;
       }
 
       .status-label strong {
-        color: var(--auris-text);
-        font-weight: 500;
+        color: var(--text);
+        font-weight: 650;
         letter-spacing: 0;
         text-transform: none;
       }
 
       .status-label.is-online {
-        border-color: var(--auris-green);
-        color: var(--auris-green);
+        border-color: color-mix(in srgb, var(--green) 58%, transparent);
+        color: var(--green);
       }
 
       .status-label.is-sync {
-        border-color: var(--auris-bluegray);
-        color: var(--auris-bluegray);
+        border-color: color-mix(in srgb, var(--cyan) 58%, transparent);
+        color: var(--cyan);
+      }
+
+      .status-label.is-warn {
+        border-color: color-mix(in srgb, var(--orange) 58%, transparent);
+        color: var(--orange);
+      }
+
+      .status-label.is-error {
+        border-color: color-mix(in srgb, var(--red) 58%, transparent);
+        color: var(--red);
       }
 
       .workspace {
         display: grid;
-        grid-template-columns: minmax(320px, 0.8fr) minmax(520px, 1.2fr);
-        gap: 16px;
+        grid-template-columns: minmax(300px, 0.68fr) minmax(560px, 1.32fr);
+        gap: 18px;
         align-items: start;
       }
 
       .stack {
         display: grid;
-        gap: 16px;
+        gap: 18px;
       }
 
       .auris-frame {
-        --cut-size: 18px;
-        --cut-border: 1px;
-        --cut-line: var(--auris-border-muted);
-        --cut-fill: var(--auris-panel);
-        --cut-base: var(--auris-panel);
-        position: relative;
-        isolation: isolate;
-        overflow: hidden;
-        border: 0;
-        background: var(--cut-line);
-        clip-path: polygon(
-          var(--cut-size) 0,
-          100% 0,
-          100% calc(100% - var(--cut-size)),
-          calc(100% - var(--cut-size)) 100%,
-          0 100%,
-          0 var(--cut-size)
-        );
-      }
-
-      .auris-frame::before {
-        content: "";
-        position: absolute;
-        inset: var(--cut-border);
-        z-index: -1;
-        pointer-events: none;
-        background:
-          linear-gradient(var(--cut-fill), var(--cut-fill)),
-          var(--cut-base);
-        clip-path: polygon(
-          calc(var(--cut-size) - var(--cut-border)) 0,
-          100% 0,
-          100% calc(100% - calc(var(--cut-size) - var(--cut-border))),
-          calc(100% - calc(var(--cut-size) - var(--cut-border))) 100%,
-          0 100%,
-          0 calc(var(--cut-size) - var(--cut-border))
-        );
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface-solid);
       }
 
       .panel {
         min-width: 0;
       }
 
+      .panel.auris-frame {
+        overflow: hidden;
+        background: var(--surface);
+        box-shadow: 0 18px 48px var(--shadow);
+        -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
+        backdrop-filter: blur(var(--blur)) saturate(180%);
+      }
+
       .panel-header {
         display: flex;
-        min-height: 48px;
+        min-height: 52px;
         align-items: center;
         justify-content: space-between;
         gap: 16px;
         padding: 0 18px;
-        border-bottom: 1px solid var(--auris-border-muted);
-        background: var(--auris-panel-raised);
+        border-bottom: 1px solid var(--border);
+        background: var(--surface-raised);
       }
 
       .panel-title {
-        color: var(--auris-text);
-        font-size: 14px;
+        color: var(--text);
+        font-size: 0.9375rem;
         font-weight: 700;
       }
 
       .panel-code {
-        color: var(--auris-text-muted);
-        font-size: 12px;
-        letter-spacing: 0.14em;
+        color: var(--text-muted);
+        font-size: 0.8125rem;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0;
       }
 
       .panel-body {
@@ -242,44 +283,61 @@
       }
 
       .dropzone {
-        --cut-size: 22px;
-        --cut-line: var(--auris-border);
-        --cut-fill: var(--auris-bg-subtle);
         display: grid;
-        min-height: 196px;
+        min-height: 214px;
         place-items: center;
         padding: 24px;
+        border-style: dashed;
+        border-color: var(--border-strong);
+        background: var(--field);
         text-align: center;
-        transition: transform 120ms ease, color 120ms ease;
+        transition:
+          transform 220ms var(--ease-out),
+          background-color 180ms var(--ease-out),
+          border-color 180ms var(--ease-out),
+          box-shadow 220ms var(--ease-out);
+      }
+
+      .dropzone:active {
+        transform: scale(0.992);
+        transition-duration: 90ms;
+        transition-timing-function: var(--ease-press);
       }
 
       .dropzone.is-dragging {
-        transform: translateY(-2px);
-        color: var(--auris-amber);
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        box-shadow: 0 14px 34px var(--shadow);
+        transform: translateY(-2px) scale(1.006);
       }
 
       .dropzone input {
         position: absolute;
         width: 1px;
         height: 1px;
+        margin: -1px;
         overflow: hidden;
         clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
       }
 
       .drop-title {
+        display: block;
         margin: 0;
-        color: var(--auris-amber);
-        font-size: clamp(26px, 4vw, 42px);
-        font-weight: 500;
+        color: var(--text);
+        font-size: 2rem;
+        font-weight: 700;
         letter-spacing: 0;
-        line-height: 1;
+        line-height: 1.08;
       }
 
       .drop-meta {
-        margin: 12px 0 0;
-        color: var(--auris-text-muted);
-        font-size: 13px;
-        line-height: 1.6;
+        display: block;
+        margin: 10px 0 0;
+        color: var(--text-muted);
+        font-size: 0.9375rem;
+        line-height: 1.55;
       }
 
       .command-row {
@@ -292,80 +350,116 @@
       .command-button,
       .file-action,
       .theme-option {
-        --cut-size: 10px;
-        --cut-line: var(--auris-border-muted);
-        --cut-fill: var(--auris-panel);
         min-height: 44px;
-        border: 0;
-        color: var(--auris-amber);
-        font-size: 12px;
-        font-weight: 700;
-        background: var(--cut-line);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 14px;
+        border: 1px solid var(--border);
+        color: var(--accent);
+        background: var(--button-surface);
+        font-size: 0.875rem;
+        font-weight: 650;
+        line-height: 1.1;
+        transition:
+          transform 120ms var(--ease-out),
+          background-color 160ms var(--ease-out),
+          border-color 160ms var(--ease-out),
+          color 160ms var(--ease-out);
+      }
+
+      .command-button:hover:not(:disabled),
+      .file-action:hover:not(:disabled),
+      .theme-option:hover:not(:disabled) {
+        background: var(--button-hover);
+        border-color: var(--border-strong);
+      }
+
+      .command-button:active:not(:disabled),
+      .file-action:active:not(:disabled),
+      .theme-option:active:not(:disabled) {
+        transform: scale(0.98);
+        transition-duration: 80ms;
+        transition-timing-function: var(--ease-press);
       }
 
       .command-button.primary {
-        --cut-line: var(--auris-border);
-        --cut-fill: var(--auris-amber);
-        color: #08090b;
+        border-color: transparent;
+        background: var(--accent);
+        color: var(--accent-contrast);
+      }
+
+      .command-button.primary:hover:not(:disabled),
+      .theme-option[aria-pressed="true"]:hover:not(:disabled) {
+        border-color: transparent;
+        background: var(--accent);
+        color: var(--accent-contrast);
       }
 
       .command-button.danger,
       .file-action.danger {
-        color: var(--auris-red);
-      }
-
-      .command-button:active,
-      .file-action:active,
-      .theme-option:active {
-        transform: translateY(1px);
+        color: var(--red);
       }
 
       .theme-switch {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 6px;
+        gap: 4px;
+        padding: 4px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--field);
       }
 
       .theme-option {
         min-height: 36px;
+        border-color: transparent;
+        background: transparent;
+        color: var(--text-muted);
       }
 
       .theme-option[aria-pressed="true"] {
-        --cut-line: var(--auris-border);
-        --cut-fill: var(--auris-amber);
-        color: #08090b;
+        border-color: transparent;
+        background: var(--accent);
+        color: var(--accent-contrast);
       }
 
       .metric-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 1px;
-        background: var(--auris-border-muted);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--border);
       }
 
       .metric {
         min-width: 0;
-        padding: 14px;
-        background: var(--auris-panel);
+        padding: 15px;
+        background: var(--field);
       }
 
       .meta-label {
-        color: var(--auris-text-muted);
-        font-size: 11px;
+        color: var(--text-muted);
+        font-size: 0.8125rem;
+        font-weight: 600;
       }
 
       .metric-value {
         margin-top: 6px;
-        color: var(--auris-amber);
-        font-size: clamp(24px, 4vw, 36px);
+        color: var(--text);
+        font-size: 1.75rem;
+        font-weight: 700;
         font-variant-numeric: tabular-nums;
-        line-height: 1;
+        line-height: 1.02;
       }
 
       .qr-grid {
         display: grid;
         grid-template-columns: 148px minmax(0, 1fr);
-        gap: 14px;
+        gap: 16px;
         align-items: center;
       }
 
@@ -373,8 +467,10 @@
         width: 148px;
         height: 148px;
         display: block;
-        background: #fff;
-        border: 1px solid var(--auris-border);
+        border: 1px solid var(--border-strong);
+        border-radius: var(--radius);
+        background: #ffffff;
+        box-shadow: 0 10px 24px var(--shadow);
         image-rendering: pixelated;
       }
 
@@ -385,16 +481,21 @@
       }
 
       .qr-url {
-        color: var(--auris-amber);
-        font-size: 13px;
+        color: var(--accent);
+        font-size: 0.9375rem;
+        font-weight: 650;
         line-height: 1.55;
         overflow-wrap: anywhere;
         text-decoration: none;
       }
 
+      .qr-url:hover {
+        text-decoration: underline;
+      }
+
       .qr-hint {
-        color: var(--auris-text-muted);
-        font-size: 12px;
+        color: var(--text-muted);
+        font-size: 0.875rem;
         line-height: 1.5;
       }
 
@@ -423,21 +524,26 @@
       }
 
       .board-editor {
-        min-height: 320px;
+        min-height: 340px;
         width: 100%;
         resize: vertical;
-        border: 1px solid var(--auris-border-muted);
-        background: var(--auris-bg-subtle);
-        color: var(--auris-text);
-        padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--field);
+        color: var(--text);
+        padding: 15px;
         line-height: 1.65;
-        caret-color: var(--auris-amber);
+        caret-color: var(--accent);
         outline: none;
+        transition:
+          border-color 160ms var(--ease-out),
+          box-shadow 160ms var(--ease-out),
+          background-color 160ms var(--ease-out);
       }
 
       .board-editor:focus {
-        border-color: var(--auris-border);
-        box-shadow: inset 0 0 0 1px var(--auris-border);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px var(--accent-soft);
       }
 
       .board-footer {
@@ -445,8 +551,8 @@
         flex-wrap: wrap;
         justify-content: space-between;
         gap: 12px;
-        color: var(--auris-text-muted);
-        font-size: 12px;
+        color: var(--text-muted);
+        font-size: 0.8125rem;
         line-height: 1.6;
       }
 
@@ -466,68 +572,66 @@
         display: flex;
         justify-content: space-between;
         gap: 16px;
-        color: var(--auris-text-muted);
-        font-size: 12px;
+        color: var(--text-muted);
+        font-size: 0.875rem;
         line-height: 1.5;
       }
 
       .progress-meta strong {
-        color: var(--auris-text);
-        font-weight: 500;
+        color: var(--text);
+        font-weight: 700;
       }
 
       .progress-track {
-        height: 18px;
-        border: 1px solid var(--auris-border-muted);
-        background:
-          repeating-linear-gradient(
-            90deg,
-            transparent 0,
-            transparent 13px,
-            var(--auris-border-muted) 14px,
-            transparent 15px
-          ),
-          var(--auris-bg-subtle);
+        height: 10px;
         overflow: hidden;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: var(--field);
       }
 
       .progress-fill {
         width: 0%;
         height: 100%;
-        background: var(--auris-amber);
-        transition: width 120ms linear;
+        border-radius: inherit;
+        background: var(--accent);
+        transition: width 140ms linear;
       }
 
       .file-list {
         display: grid;
+        overflow-x: auto;
       }
 
       .file-head,
       .file-row {
+        min-width: 820px;
         display: grid;
-        grid-template-columns: minmax(190px, 1fr) 96px 96px 132px 174px;
+        grid-template-columns: minmax(220px, 1fr) 96px 96px 132px 156px;
         gap: 12px;
         align-items: center;
       }
 
       .file-head {
-        min-height: 36px;
+        min-height: 40px;
         padding: 0 14px;
-        border-bottom: 1px solid var(--auris-border-muted);
-        color: var(--auris-text-muted);
-        font-size: 11px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text-muted);
+        background: var(--surface-raised);
+        font-size: 0.8125rem;
+        font-weight: 650;
       }
 
       .file-row {
-        min-height: 66px;
+        min-height: 68px;
         padding: 10px 14px;
-        border-bottom: 1px solid var(--auris-border-muted);
-        color: var(--auris-text);
-        transition: background 120ms ease;
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+        transition: background-color 140ms var(--ease-out);
       }
 
       .file-row:hover {
-        background: var(--auris-row);
+        background: var(--row);
       }
 
       .file-row:last-child {
@@ -541,24 +645,26 @@
       .file-name strong {
         display: block;
         overflow-wrap: anywhere;
-        font-size: 14px;
-        font-weight: 600;
+        font-size: 0.9375rem;
+        font-weight: 700;
+        line-height: 1.3;
       }
 
       .file-ext {
         display: inline-block;
         margin-top: 6px;
-        color: var(--auris-bluegray);
-        font-size: 11px;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
+        color: var(--cyan);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        letter-spacing: 0;
+        text-transform: none;
       }
 
       .file-size,
       .file-downloads,
       .file-time {
-        color: var(--auris-text-muted);
-        font-size: 12px;
+        color: var(--text-muted);
+        font-size: 0.8125rem;
         font-variant-numeric: tabular-nums;
       }
 
@@ -577,7 +683,7 @@
         display: grid;
         place-items: center;
         padding: 32px;
-        color: var(--auris-text-muted);
+        color: var(--text-muted);
         text-align: center;
         line-height: 1.6;
       }
@@ -586,52 +692,48 @@
         display: grid;
         max-height: 260px;
         overflow: auto;
-        padding: 12px;
-        background: var(--auris-bg-subtle);
-        border: 1px solid var(--auris-border-muted);
         gap: 6px;
+        padding: 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--field);
       }
 
       .log-line {
         display: grid;
-        grid-template-columns: 72px 1fr;
+        grid-template-columns: 68px 1fr;
         gap: 10px;
-        color: var(--auris-text-muted);
-        font-size: 12px;
+        color: var(--text-muted);
+        font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+        font-size: 0.8125rem;
         line-height: 1.45;
       }
 
       .log-line[data-level="ok"] {
-        color: var(--auris-green);
+        color: var(--green);
       }
 
       .log-line[data-level="warn"] {
-        color: var(--auris-amber);
+        color: var(--orange);
       }
 
       .log-line[data-level="error"] {
-        color: var(--auris-red);
+        color: var(--red);
       }
 
       .log-time {
-        color: var(--auris-bluegray);
+        color: var(--cyan);
         font-variant-numeric: tabular-nums;
       }
 
       .cursor {
         display: inline-block;
-        width: 9px;
-        height: 1em;
-        margin-left: 3px;
-        background: var(--auris-amber);
-        vertical-align: -2px;
-        animation: blink 1s steps(2, start) infinite;
-      }
-
-      @keyframes blink {
-        50% {
-          opacity: 0;
-        }
+        width: 0.45em;
+        height: 0.45em;
+        margin-left: 0.35em;
+        border-radius: 50%;
+        background: currentColor;
+        vertical-align: 0.05em;
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -643,9 +745,43 @@
           animation-duration: 0.01ms !important;
           animation-iteration-count: 1 !important;
         }
+
+        .dropzone.is-dragging,
+        .command-button:active:not(:disabled),
+        .file-action:active:not(:disabled),
+        .theme-option:active:not(:disabled) {
+          transform: none;
+        }
       }
 
-      @media (max-width: 980px) {
+      @media (prefers-reduced-transparency: reduce) {
+        .topbar,
+        .panel.auris-frame {
+          background: var(--surface-solid);
+          -webkit-backdrop-filter: none;
+          backdrop-filter: none;
+        }
+      }
+
+      @media (prefers-contrast: more) {
+        :root,
+        [data-theme="dark"],
+        [data-theme="light"] {
+          --border: currentColor;
+          --border-strong: currentColor;
+        }
+
+        .topbar,
+        .panel.auris-frame,
+        .dropzone,
+        .board-editor,
+        .log-list,
+        .progress-track {
+          border-width: 2px;
+        }
+      }
+
+      @media (max-width: 1120px) {
         .shell {
           padding: 24px;
         }
@@ -655,8 +791,18 @@
           grid-template-columns: 1fr;
         }
 
+        .topbar {
+          position: static;
+        }
+
         .address-strip {
           justify-content: flex-start;
+        }
+      }
+
+      @media (max-width: 980px) {
+        h1 {
+          font-size: 2.25rem;
         }
 
         .file-head {
@@ -664,18 +810,37 @@
         }
 
         .file-row {
+          min-width: 0;
           grid-template-columns: 1fr;
           gap: 8px;
+          padding: 14px;
+        }
+
+        .file-size::before {
+          content: "大小 ";
+        }
+
+        .file-downloads::before {
+          content: "下载 ";
+        }
+
+        .file-time::before {
+          content: "修改 ";
         }
 
         .file-actions {
           grid-template-columns: 1fr 1fr;
+          max-width: 280px;
         }
       }
 
-      @media (max-width: 560px) {
+      @media (max-width: 720px) {
         .shell {
-          padding: 18px 14px 28px;
+          padding: 16px 14px 28px;
+        }
+
+        h1 {
+          font-size: 1.95rem;
         }
 
         .panel-header,
@@ -686,7 +851,9 @@
 
         .metric-grid,
         .qr-grid,
-        .command-row {
+        .command-row,
+        .board-toolbar,
+        .board-actions {
           grid-template-columns: 1fr;
         }
 
@@ -696,8 +863,8 @@
           aspect-ratio: 1;
         }
 
-        .topbar {
-          gap: 16px;
+        .drop-title {
+          font-size: 1.625rem;
         }
 
         .address-strip {
@@ -713,13 +880,13 @@
   </head>
   <body>
     <main class="shell">
-      <header class="topbar">
+      <header class="topbar" aria-label="共享状态">
         <div>
-          <div class="brand-kicker">局域网传输节点</div>
+          <div class="brand-kicker">局域网共享</div>
           <h1>Wi-Fi 文件共享</h1>
         </div>
         <div class="address-strip" id="addressStrip">
-          <span class="status-label is-sync">扫描 <strong>...</strong></span>
+          <span class="status-label is-sync">地址 <strong>检测中</strong></span>
         </div>
       </header>
 
@@ -727,15 +894,15 @@
         <div class="stack">
           <section class="panel auris-frame">
             <div class="panel-header">
-              <div class="panel-title">上传控制</div>
-              <div class="panel-code">U-01</div>
+              <div class="panel-title">上传</div>
+              <div class="panel-code">文件</div>
             </div>
             <div class="panel-body">
-              <label class="dropzone auris-frame" id="dropzone">
+              <label class="dropzone auris-frame" id="dropzone" role="button" tabindex="0" aria-describedby="dropHint">
                 <input id="fileInput" type="file" multiple />
                 <span>
-                  <span class="drop-title">拖放文件</span>
-                  <span class="drop-meta">拖入文件或点击选择。上传完成后立即进入共享列表。</span>
+                  <span class="drop-title">拖放或选择文件</span>
+                  <span class="drop-meta" id="dropHint">完成后会出现在共享列表中。</span>
                 </span>
               </label>
 
@@ -748,15 +915,15 @@
 
           <section class="panel auris-frame">
             <div class="panel-header">
-              <div class="panel-title">扫码进入</div>
-              <div class="panel-code">Q-02</div>
+              <div class="panel-title">扫码访问</div>
+              <div class="panel-code">二维码</div>
             </div>
             <div class="panel-body">
               <div class="qr-grid">
                 <img class="qr-code" id="qrImage" alt="扫码进入此文件共享页面" />
                 <div class="qr-copy">
                   <a class="qr-url" id="qrLink" href="#" target="_blank" rel="noreferrer">等待生成访问地址</a>
-                  <div class="qr-hint">同一局域网内的手机或电脑扫码即可打开共享页面。</div>
+                  <div class="qr-hint">同一局域网设备扫码访问。</div>
                 </div>
               </div>
             </div>
@@ -764,8 +931,8 @@
 
           <section class="panel auris-frame">
             <div class="panel-header">
-              <div class="panel-title">节点状态</div>
-              <div class="panel-code">N-03</div>
+              <div class="panel-title">当前状态</div>
+              <div class="panel-code">概览</div>
             </div>
             <div class="panel-body">
               <div class="metric-grid">
@@ -787,8 +954,8 @@
 
           <section class="panel auris-frame">
             <div class="panel-header">
-              <div class="panel-title">主题模式</div>
-              <div class="panel-code">T-04</div>
+              <div class="panel-title">外观</div>
+              <div class="panel-code">主题</div>
             </div>
             <div class="panel-body">
               <div class="theme-switch" role="group" aria-label="主题模式">
@@ -802,7 +969,7 @@
         <div class="stack">
           <section class="panel auris-frame">
             <div class="panel-header">
-              <div class="panel-title">传输进度</div>
+              <div class="panel-title">传输</div>
               <div class="panel-code" id="operationCode">待命</div>
             </div>
             <div class="panel-body">
@@ -811,7 +978,15 @@
                   <span id="operationName">等待传输任务</span>
                   <strong id="operationPercent">0%</strong>
                 </div>
-                <div class="progress-track" aria-label="传输进度">
+                <div
+                  class="progress-track"
+                  id="progressTrack"
+                  role="progressbar"
+                  aria-label="传输进度"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                >
                   <div class="progress-fill" id="progressFill"></div>
                 </div>
                 <div class="progress-meta">
@@ -824,7 +999,7 @@
 
           <section class="panel auris-frame">
             <div class="panel-header">
-              <div class="panel-title">协作文本文板</div>
+              <div class="panel-title">协作文本</div>
               <div class="panel-code" id="boardPanelCode">B-00</div>
             </div>
             <div class="panel-body">
@@ -834,8 +1009,8 @@
                   <span class="status-label" id="boardVersion">版本 <strong>0</strong></span>
                 </div>
                 <div class="board-actions">
-                  <button class="command-button auris-frame" id="copyBoardButton" type="button">复制文本</button>
-                  <button class="command-button danger auris-frame" id="clearBoardButton" type="button">清空白板</button>
+                  <button class="command-button auris-frame" id="copyBoardButton" type="button">复制</button>
+                  <button class="command-button danger auris-frame" id="clearBoardButton" type="button">清空</button>
                 </div>
               </div>
               <div class="board-editor-wrap">
@@ -870,11 +1045,11 @@
 
           <section class="panel auris-frame">
             <div class="panel-header">
-              <div class="panel-title">系统日志</div>
-              <div class="panel-code">L-04</div>
+              <div class="panel-title">活动日志</div>
+              <div class="panel-code">最近</div>
             </div>
             <div class="panel-body">
-              <div class="log-list" id="logList" aria-live="polite"></div>
+              <div class="log-list" id="logList" aria-label="活动日志" aria-live="polite"></div>
             </div>
           </section>
         </div>
@@ -919,6 +1094,7 @@
         operationPercent: document.querySelector("#operationPercent"),
         operationBytes: document.querySelector("#operationBytes"),
         operationRate: document.querySelector("#operationRate"),
+        progressTrack: document.querySelector("#progressTrack"),
         progressFill: document.querySelector("#progressFill"),
         logList: document.querySelector("#logList"),
         darkMode: document.querySelector("#darkMode"),
@@ -971,6 +1147,14 @@
         elements.dropzone.addEventListener("drop", (event) => {
           const files = Array.from(event.dataTransfer.files || []);
           uploadFiles(files);
+        });
+
+        elements.dropzone.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" && event.key !== " ") {
+            return;
+          }
+          event.preventDefault();
+          elements.fileInput.click();
         });
 
         elements.darkMode.addEventListener("click", () => setTheme("dark"));
@@ -1297,6 +1481,12 @@
         if (level === "sync") {
           elements.boardSyncStatus.classList.add("is-sync");
         }
+        if (level === "warn") {
+          elements.boardSyncStatus.classList.add("is-warn");
+        }
+        if (level === "error") {
+          elements.boardSyncStatus.classList.add("is-error");
+        }
         elements.boardSyncStatus.innerHTML = `${escapeHTML(label)} <strong>${escapeHTML(value)}</strong>`;
       }
 
@@ -1330,7 +1520,20 @@
 
       function statusLabel(label, value, level) {
         const node = document.createElement("span");
-        node.className = `status-label ${level === "online" ? "is-online" : ""} ${level === "sync" ? "is-sync" : ""}`;
+        const classes = ["status-label"];
+        if (level === "online") {
+          classes.push("is-online");
+        }
+        if (level === "sync") {
+          classes.push("is-sync");
+        }
+        if (level === "warn") {
+          classes.push("is-warn");
+        }
+        if (level === "error") {
+          classes.push("is-error");
+        }
+        node.className = classes.join(" ");
         node.innerHTML = `${escapeHTML(label)} <strong>${escapeHTML(value)}</strong>`;
         return node;
       }
@@ -1566,6 +1769,8 @@
         elements.operationPercent.textContent = "0%";
         elements.operationBytes.textContent = `0 B / ${formatBytes(total || 0)}`;
         elements.operationRate.textContent = "0 B/s";
+        elements.progressTrack.setAttribute("aria-valuenow", "0");
+        elements.progressTrack.setAttribute("aria-valuetext", `${code} ${name} 0%`);
         elements.progressFill.style.width = "0%";
       }
 
@@ -1578,6 +1783,8 @@
         elements.operationPercent.textContent = `${percent}%`;
         elements.operationBytes.textContent = `${formatBytes(loaded)} / ${formatBytes(safeTotal)}`;
         elements.operationRate.textContent = `${formatBytes(loaded / elapsed)}/s`;
+        elements.progressTrack.setAttribute("aria-valuenow", String(percent));
+        elements.progressTrack.setAttribute("aria-valuetext", `${code} ${name} ${percent}%`);
         elements.progressFill.style.width = `${percent}%`;
       }
 
@@ -1694,7 +1901,7 @@
         const line = document.createElement("div");
         line.className = "log-line";
         line.dataset.level = level;
-        line.innerHTML = `<span class="log-time">${currentTime()}</span><span>$ ${escapeHTML(message)}</span>`;
+        line.innerHTML = `<span class="log-time">${currentTime()}</span><span>${escapeHTML(message)}</span>`;
         elements.logList.prepend(line);
         while (elements.logList.children.length > 80) {
           elements.logList.lastElementChild.remove();
